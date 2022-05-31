@@ -35,18 +35,45 @@ const operators = {
 
 let firstValue = 0;
 let secondValue = 0;
+let calculatorOperator = null;
 
 function handleOperator(operator) {
-    return 1;
+    if (calculatorOperator !== null) {
+        return;
+    }
+    calculatorOperator = operator;
+    secondValue = firstValue; 
+    firstValue = 0;
+
+    updateDisplay();
+}
+
+function handleNumber(number) {
+    if (firstValue == 0) {
+        firstValue = number;
+    } else {
+        firstValue = firstValue.concat(number);
+    }
+    updateDisplay(firstValue);
+}
+
+function handleEquals() {
+    if (calculatorOperator === null) {
+        return;
+    }
+    secondValue = calculatorOperator(parseInt(firstValue), parseInt(secondValue));
+    calculatorOperator = null;
+    updateDisplay();
 }
 
 function handleButtonClick(buttonValue) {
     buttonValue = buttonValue.toLowerCase();
     if (buttonValue == '=') {
         console.log(buttonValue);
+        handleEquals();
     } else if (buttonValue in operators) {
         console.log(operators[buttonValue]);
-        // handleOperator(operators[buttonValue]);
+        handleOperator(operators[buttonValue]);
     } else if (buttonValue == ".") {
         console.log(buttonValue);
 
@@ -59,28 +86,30 @@ function handleButtonClick(buttonValue) {
         console.log(buttonValue);
 
     } else {
-        // handleNumber();
-        updateDisplay(buttonValue);
+        // Number
+        handleNumber(buttonValue);
         console.log(buttonValue);
-
     }
 }
 
 function addButtonEventListeners() {
     const buttons = document.querySelectorAll('button');
-    console.log(buttons);
     buttons.forEach(button => {
         button.addEventListener('click', () => {
-            const buttonValue = button.innerText;
+            const buttonValue = button.textContent;
             handleButtonClick(buttonValue);
             console.log("Button clicked: " + buttonValue);
         });
     });
 }
 
-function updateDisplay(value) {
-    let display = document.querySelector('.bottom-row');
-    display.innerText = value;
+/* Updates the calculator display */
+function updateDisplay() {
+    let bottomRow = document.querySelector('.bottom-row');
+    bottomRow.textContent = firstValue;
+
+    let topRow = document.querySelector('.top-row');
+    topRow.textContent = secondValue;
 }
 
 addButtonEventListeners();
