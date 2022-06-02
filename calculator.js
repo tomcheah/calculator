@@ -69,13 +69,21 @@ function handleButtonClick(buttonValue) {
     } else if (buttonValue == ".") {
         console.log(buttonValue);
     } else if (buttonValue == "clear") {
-        console.log(buttonValue);
+        handleClear();
     } else if (buttonValue == "delete") {
         console.log(buttonValue);
     } else {
         // Number
         handleNumber(buttonValue);
     }
+}
+
+function handleClear() {
+    displayValue = 0;
+    equationValue = null;
+    currOperator = null;
+    operatorText = "";
+    updateDisplay(true, true);
 }
 
 /* Handles a number button press */
