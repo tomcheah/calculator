@@ -1,20 +1,28 @@
 /* Adds a and b */
 function add(a,b) {
+    a = parseInt(a);
+    b = parseInt(b);
     return a+b;
 }
 
 /* Subtracts b from a */
 function subtract(a,b) {
+    a = parseInt(a);
+    b = parseInt(b);
     return a-b;
 }
 
 /* Multiplies a and b */
 function multiply(a,b) {
+    a = parseInt(a);
+    b = parseInt(b);
     return a*b;
 }
 
 /* Divides a by b */
 function divide(a,b) {
+    a = parseInt(a);
+    b = parseInt(b);
     if (b == 0) {
         alert("Division by zero is not allowed");
     }
@@ -33,65 +41,112 @@ const operators = {
     '/' : divide,
 }
 
-let firstValue = 0;
-let secondValue = 0;
-let calculatorOperator = null;
+/* Global variables */
+const equationRow = document.querySelector('.top-row');
+const displayRow = document.querySelector('.bottom-row');
+let displayValue = 0;
+let equationValue = 0;
+let currOperator = null; 
+let operatorText = '';
+let equals = false; 
 
-function handleOperator(operator) {
-    if (calculatorOperator !== null) {
-        return;
-    }
-    calculatorOperator = operator;
-    secondValue = firstValue; 
-    firstValue = 0;
-
-    updateDisplay();
-}
-
-function handleNumber(number) {
-    if (firstValue == 0) {
-        firstValue = number;
+function updateOperator(opText) { 
+    if (opText === "" || opText === null || opText === undefined) {
+        currOperator = null;
+        operatorText = ""; 
     } else {
-        firstValue = firstValue.concat(number);
+        operatorText = opText;
+        currOperator = operators[opText];
     }
-    updateDisplay(firstValue);
-}
-
-function handleEquals() {
-    if (calculatorOperator === null) {
-        return;
-    }
-    secondValue = calculatorOperator(parseInt(firstValue), parseInt(secondValue));
-    calculatorOperator = null;
-    updateDisplay();
 }
 
 function handleButtonClick(buttonValue) {
     buttonValue = buttonValue.toLowerCase();
     if (buttonValue == '=') {
-        console.log(buttonValue);
         handleEquals();
     } else if (buttonValue in operators) {
-        console.log(operators[buttonValue]);
-        handleOperator(operators[buttonValue]);
+        handleOperator(buttonValue);
     } else if (buttonValue == ".") {
         console.log(buttonValue);
-
     } else if (buttonValue == "clear") {
-        // clearCalculator();
         console.log(buttonValue);
-
     } else if (buttonValue == "delete") {
-        // deleteLastDigit();
         console.log(buttonValue);
-
     } else {
         // Number
         handleNumber(buttonValue);
-        console.log(buttonValue);
     }
 }
 
+/* Handles a number button press */
+function handleNumber(buttonValue) {
+    if (displayValue == 0) {
+        displayValue = buttonValue;
+        updateDisplay(true, false);
+    } else {
+        displayValue = displayValue + String(buttonValue);
+        updateDisplay(true, false);
+    }
+}
+
+function handleOperator(buttonValue) {
+    updateOperator(buttonValue);
+    equationValue = displayValue;
+    displayValue = 0;
+    /* Update values 
+        - Move displayValue to equation Value
+        - Set equationValue to 0 
+    */
+    updateDisplay(false, true);
+}
+
+function handleEquals(buttonValue) {
+    /* 
+        Set equals to true
+        Update display value
+        Update entire display
+        Null out equationValue
+        Null out operator
+        Set equals to false again
+    */
+   
+    if (currOperator === null) {
+        return;    
+    }
+    equals = true;
+    updateDisplay(false, true);
+    displayValue = operate(currOperator, equationValue, displayValue);
+    updateDisplay(true, false);
+    equationValue = 0;
+    currOperator = null;
+    operaterText = "";
+    equals = false;
+}
+
+/* Updates display of calculator */
+function updateDisplay(updateDisplayValue, updateEquationValue) {
+    if (updateDisplayValue) {
+        displayRow.textContent = displayValue;
+    }
+
+    if (updateEquationValue) {
+        let content = ''; 
+        if (equationValue !== null) {
+            content += String(equationValue); 
+        }
+        if (operatorText !== null || operatorText !== "") {
+            content += operatorText;
+        }
+        if (equals) {
+            content += String(displayValue) + '=';
+        }
+
+        equationRow.textContent = content; 
+    }
+
+}
+
+/* Adds event listeners to all the buttons */
 function addButtonEventListeners() {
     const buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
@@ -103,23 +158,4 @@ function addButtonEventListeners() {
     });
 }
 
-/* Updates the calculator display */
-function updateDisplay() {
-    let bottomRow = document.querySelector('.bottom-row');
-    bottomRow.textContent = firstValue;
-
-    let topRow = document.querySelector('.top-row');
-    topRow.textContent = secondValue;
-}
-
 addButtonEventListeners();
-
-/* 
-
-    - Have some kind of map that maps buttons to operators
-
-    - Event listener for each button 
-        - If the button is an operator, set the operator
-
-
-*/
